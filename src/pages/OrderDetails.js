@@ -8,7 +8,6 @@ function ProductList() {
     const [products, setproducts] = useState([]);
     const [loading, setloading] = useState(true);
     const [customerIds, setCustomerIds] = useState([]);
-    const [filteredData, setFilteredData] = useState([]);
 
     useEffect(() => {
         loadData();
@@ -20,7 +19,6 @@ function ProductList() {
                 const data = res.data;
                 const uniqueCustomerIds = [...new Set(data.map(item => item.customerId))];
                 setproducts(data);
-                setFilteredData(data);
                 setloading(false);
                 setCustomerIds(uniqueCustomerIds);
             })
@@ -34,12 +32,14 @@ function ProductList() {
                 text: id,
                 value: id,
             })),
+            onFilter: (value, record) => record.customerId.toString() === value,
         },
         {
             title: 'Freight',
             dataIndex: 'freight',
             key: 'freight',
             sorter: (a, b) => a.freight - b.freight,
+            sortDirections: ['ascend', 'descend'],
         },
         {
             title: 'Ship Address City',
@@ -70,17 +70,9 @@ function ProductList() {
     return (
         <>
             <Table
-                dataSource={filteredData.map((item, index) => ({ ...item, key: index }))}
+                dataSource={products.map((item, index) => ({ ...item, key: index }))}
                 columns={columns}
                 loading={loading}
-                onChange={(pagination, filters, sorter) => {
-                    // Filtrelenmiş verileri al
-                    const filteredData = products.filter(item =>
-                        filters.customerId?.includes(item.customerId.toString())
-                    );
-
-                    setFilteredData(filteredData);
-                }}
             />
         </>
     );
