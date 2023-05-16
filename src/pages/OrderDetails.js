@@ -2,8 +2,9 @@ import { Table } from 'antd';
 import axios from 'axios';
 import React, { useEffect } from 'react'
 import { useState } from 'react';
+import moment from 'moment';
 
-function ProductList() {
+function OrderDetails() {
 
     const [products, setproducts] = useState([]);
     const [loading, setloading] = useState(true);
@@ -22,7 +23,20 @@ function ProductList() {
                 setloading(false);
                 setCustomerIds(uniqueCustomerIds);
             })
+            .catch(error => {
+                console.log(error.message)
+            })
     }
+
+    const rowClassName = (record) => {
+        const requiredDate = moment(record.requiredDate);
+        const shippedDate = moment(record.shippedDate);
+        if (requiredDate.isValid() && shippedDate.isValid() && shippedDate > requiredDate) {
+            return 'red-row';
+        }
+        return '';
+    };
+
     let columns = [
         {
             title: 'Customer Id',
@@ -31,6 +45,7 @@ function ProductList() {
             filters: customerIds.map(id => ({
                 text: id,
                 value: id,
+                dropdownMatchSelectWidth: false,
             })),
             onFilter: (value, record) => record.customerId.toString() === value,
         },
@@ -55,27 +70,32 @@ function ProductList() {
             title: 'Order Date',
             dataIndex: 'orderDate',
             key: 'orderDate',
+            render: (date) => moment(date).format('MMMM Do YY'),
         },
         {
             title: 'Required Date',
             dataIndex: 'requiredDate',
             key: 'requiredDate',
+            render: (date) => moment(date).format('MMMM Do YY'),
         },
         {
             title: 'Shipped Date',
             dataIndex: 'shippedDate',
             key: 'shippedDate',
+            render: (date) => moment(date).format('MMMM Do YY'),
         }
     ]
+
     return (
         <>
             <Table
                 dataSource={products.map((item, index) => ({ ...item, key: index }))}
                 columns={columns}
                 loading={loading}
+                rowClassName={rowClassName}
             />
         </>
     );
 }
 
-export default ProductList;
+export default OrderDetails;
