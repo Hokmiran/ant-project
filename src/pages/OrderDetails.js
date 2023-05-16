@@ -71,6 +71,8 @@ function OrderDetails() {
             dataIndex: 'orderDate',
             key: 'orderDate',
             render: (date) => moment(date).format('MMMM Do YY'),
+            sorter: (a, b) => moment(a.orderDate).unix() - moment(b.orderDate).unix(),
+            sortDirections: ['ascend', 'descend'],
         },
         {
             title: 'Required Date',
